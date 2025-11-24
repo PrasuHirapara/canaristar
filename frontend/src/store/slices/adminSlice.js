@@ -1,0 +1,100 @@
+import { createSlice } from "@reduxjs/toolkit";
+import axios from "axios";
+
+const BACKEND_URL = import.meta.env.VITE_BASE_URL;
+
+const token = localStorage.getItem("token") || null;
+
+const adminSlice = createSlice({
+  name: "admin",
+  initialState: {
+    loading: false,
+    error: null,
+    message: null,
+    users: [],
+  },
+  reducers: {
+    makeAdminRequest(state) {
+      state.loading = true;
+      state.error = null;
+      state.message = null;
+    },
+    makeAdminSuccess(state, action) {
+      state.loading = false;
+      state.message = action.payload;
+    },
+    makeAdminFailed(state, action) {
+      state.loading = false;
+      state.error = action.payload;
+    },
+
+    getAllUsersRequest(state) {
+      state.loading = true;
+      state.error = null;
+      state.message = null;
+    },
+    getAllUsersSuccess(state, action) {
+      state.loading = false;
+      state.users = action.payload;
+    },
+    getAllUsersFailed(state, action) {
+      state.loading = false;
+      state.error = action.payload;
+    },
+
+    resetAdminSlice(state) {
+      state.loading = false;
+      state.error = null;
+      state.message = null;
+    },
+  },
+});
+
+export const resetAdminSlice = () => (dispatch) => {
+  dispatch(adminSlice.actions.resetAdminSlice());
+};
+
+export const makeAdmin = (data) => async (dispatch) => {
+  dispatch(adminSlice.actions.makeAdminRequest());
+
+  await axios
+    .post(`${BACKEND_URL}/api/admin/make-admin`, data, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((res) => {
+      dispatch(adminSlice.actions.makeAdminSuccess(res.data));
+    })
+    .catch((error) => {
+      dispatch(
+        adminSlice.actions.makeAdminFailed(
+          error.response?.data || error.message
+        )
+      );
+    });
+};
+
+export const getAllUsers = () => async (dispatch) => {
+  dispatch(adminSlice.actions.getAllUsersRequest());
+
+  await axios
+    .get(`${BACKEND_URL}/api/admin/all`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((res) => {
+      dispatch(adminSlice.actions.getAllUsersSuccess(res.data));
+    })
+    .catch((error) => {
+      dispatch(
+        adminSlice.actions.getAllUsersFailed(
+          error.response?.data || error.message
+        )
+      );
+    });
+};
+
+export default adminSlice.reducer;
