@@ -3,8 +3,6 @@ import axios from "axios";
 
 const BACKEND_URL = import.meta.env.VITE_BASE_URL;
 
-const token = localStorage.getItem("token") || null;
-
 const authSlice = createSlice({
   name: "auth",
   initialState: {
@@ -12,137 +10,79 @@ const authSlice = createSlice({
     error: null,
     message: null,
     user: null,
-    user1: null,
-    isAuthenticated: !!token,
-    token,
+    // user: JSON.parse(localStorage.getItem("user")) || null,
+    isAuthenticated: localStorage.getItem("isAuthenticated") === "true",
   },
   reducers: {
-    registerRequest(state) {
+    signupRequest(state) {
       state.loading = true;
       state.error = null;
       state.message = null;
     },
-    registerSuccess(state, action) {
-      state.loading = false;
-      state.message = action.payload.message;
-    },
-    registerFailed(state, action) {
+    signupSuccess(state, action) {
       state.loading = false;
       state.message = action.payload;
     },
-    otpVerificationRequest(state) {
-      state.loading = true;
-      state.error = null;
-      state.message = null;
-    },
-    otpVerificationSuccess(state, action) {
-      state.loading = false;
-      state.message = action.payload.message;
-      state.isAuthenticated = true;
-      state.user = action.payload.user;
-    },
-    otpVerificationFailed(state, action) {
-      state.loading = false;
-      state.message = action.payload;
-    },
-    loginRequest(state) {
-      state.loading = true;
-      state.error = null;
-      state.message = null;
-    },
-    loginSuccess(state, action) {
-      state.loading = false;
-      state.message = action.payload.message;
-      state.isAuthenticated = true;
-      state.user = action.payload.user || null;
-      state.token = action.payload.token;
-
-      localStorage.setItem("token", action.payload.token);
-    },
-    loginFailed(state, action) {
-      state.loading = false;
-      state.message = action.payload;
-    },
-    logoutRequest(state) {
-      state.loading = true;
-      state.error = null;
-      state.message = null;
-    },
-    logoutSuccess(state, action) {
-      state.loading = false;
-      state.message = action.payload;
-      state.isAuthenticated = false;
-      state.user = null;
-      state.token = null;
-      localStorage.removeItem("token");
-    },
-
-    logoutFailed(state, action) {
+    signupFailed(state, action) {
       state.loading = false;
       state.error = action.payload;
+    },
+
+    verifyOtpRequest(state) {
+      state.loading = true;
+      state.error = null;
       state.message = null;
     },
+    verifyOtpSuccess(state, action) {
+      state.loading = false;
+      state.message = action.payload.message;
+      state.user = action.payload.user || null;
+      state.isAuthenticated = true;
+    },
+    verifyOtpFailed(state, action) {
+      state.loading = false;
+      state.error = action.payload;
+    },
+
+    resendOtpRequest(state) {
+      state.loading = true;
+      state.error = null;
+      state.message = null;
+    },
+
+    resendOtpSuccess(state, action) {
+      state.loading = false;
+      state.message = action.payload;
+    },
+
+    resendOtpFailed(state, action) {
+      state.loading = false;
+      state.error = action.payload;
+    },
+
+    signinRequest(state) {
+      state.loading = true;
+      state.error = null;
+      state.message = null;
+    },
+    signinSuccess(state, action) {
+      state.loading = false;
+      state.message = action.payload.message;
+      state.user = action.payload.user || null;
+      state.isAuthenticated = true;
+
+      localStorage.setItem("isAuthenticated", "true");
+      // localStorage.setItem("user", JSON.stringify(action.payload.user));
+    },
+    signinFailed(state, action) {
+      state.loading = false;
+      state.error = action.payload;
+    },
+
     resetAuthSlice(state) {
       state.loading = false;
       state.error = null;
       state.message = null;
-      state.user = state.user;
-      state.isAuthenticated = state.isAuthenticated;
-    },
-    forgotPasswordRequest(state) {
-      state.loading = true;
-      state.error = null;
-      state.message = null;
-    },
-    forgotPasswordSuccess(state, action) {
-      state.loading = false;
-      state.message = action.payload.message;
-    },
-    forgotPasswordFailed(state, action) {
-      state.loading = false;
-      state.error = action.payload;
-    },
-    resetPasswordRequest(state) {
-      state.loading = true;
-      state.error = null;
-      state.message = null;
-    },
-    resetPasswordSuccess(state, action) {
-      state.loading = false;
-      state.message = action.payload.message;
-      state.user = action.payload.user;
-      state.isAuthenticated = true;
-    },
-    resetPasswordFailed(state, action) {
-      state.loading = false;
-      state.error = action.payload;
-    },
-    updatePasswordRequest(state) {
-      state.loading = true;
-      state.error = null;
-      state.message = null;
-    },
-    updatePasswordSuccess(state, action) {
-      state.loading = false;
-      state.message = action.payload;
-    },
-    updatePasswordFailed(state) {
-      state.loading = false;
-      state.error = action.payload;
-    },
-    getMyProfileRequest(state) {
-      state.loading = true;
-      state.error = null;
-      state.message = null;
-    },
-    getMyProfileSuccess(state, action) {
-      state.loading = false;
-      state.message = action.payload.message;
-      state.user1 = action.payload.user || null;
-    },
-    getMyProfileFailed(state, action) {
-      state.loading = false;
-      state.error = action.payload;
     },
   },
 });
@@ -151,145 +91,80 @@ export const resetAuthSlice = () => (dispatch) => {
   dispatch(authSlice.actions.resetAuthSlice());
 };
 
-export const register = (data) => async (dispatch) => {
-  dispatch(authSlice.actions.registerRequest());
+export const signup = (userData) => async (dispatch) => {
+  dispatch(authSlice.actions.signupRequest());
   await axios
-    .post(`${BACKEND_URL}/auth/signup`, data, {
-      // withCredentials: true,
-      headers: {
-        "Content-Type": "application/json",
-      },
+    .post(`${BACKEND_URL}/auth/signup`, userData, {
+      withCredentials: true,
+      headers: { "Content-Type": "application/json" },
     })
     .then((res) => {
-      dispatch(authSlice.actions.registerSuccess(res.data));
-    })
-    .catch((error) => {
-      dispatch(authSlice.actions.registerFailed(error.response.data.message));
-    });
-};
-
-export const otpVerification = (email, otp) => async (dispatch) => {
-  dispatch(authSlice.actions.otpVerificationRequest());
-  await axios
-    .post(
-      `${BACKEND_URL}/auth/verify-otp?otp=${otp}`,
-      { email },
-      {
-        // withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    )
-    .then((res) => {
-      dispatch(authSlice.actions.otpVerificationSuccess(res.data));
+      dispatch(authSlice.actions.signupSuccess(res.data));
     })
     .catch((error) => {
       dispatch(
-        authSlice.actions.otpVerificationFailed(error.response.data.message)
+        authSlice.actions.signupFailed(
+          error.response?.data?.message || error.message
+        )
       );
     });
 };
 
-export const login = (data) => async (dispatch) => {
-  dispatch(authSlice.actions.loginRequest());
-  await axios
-    .post(`${BACKEND_URL}/auth/signin`, data, {
-      // withCredentials: true,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-    .then((res) => {
-      dispatch(authSlice.actions.loginSuccess(res.data));
-    })
-    .catch((error) => {
-      dispatch(authSlice.actions.loginFailed(error.response.data.message));
-    });
-};
-
-export const logout = () => async (dispatch) => {
-  dispatch(authSlice.actions.logoutRequest());
-  dispatch(authSlice.actions.logoutSuccess("successfully logged out"));
-  dispatch(authSlice.actions.resetAuthSlice());
-};
-
-export const forgotPassword = (email) => async (dispatch) => {
-  dispatch(authSlice.actions.forgotPasswordRequest());
+export const verifyOtp = (email, otp) => async (dispatch) => {
+  dispatch(authSlice.actions.verifyOtpRequest());
   await axios
     .post(
-      `${BACKEND_URL}/auth/password/forgot`,
-      { email },
+      `${BACKEND_URL}/auth/verify-otp`,
+      { email, otp },
       {
         withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       }
     )
     .then((res) => {
-      dispatch(authSlice.actions.forgotPasswordSuccess(res.data));
+      dispatch(authSlice.actions.verifyOtpSuccess(res.data));
     })
     .catch((error) => {
       dispatch(
-        authSlice.actions.forgotPasswordFailed(error.response.data.message)
+        authSlice.actions.verifyOtpFailed(
+          error.response?.data?.message || error.message
+        )
       );
     });
 };
 
-export const resetPassword = (data, token) => async (dispatch) => {
-  dispatch(authSlice.actions.resetPasswordRequest());
+export const resendOtp = (email) => async (dispatch) => {
+  dispatch(authSlice.actions.resendOtpRequest());
   await axios
-    .put(`${BACKEND_URL}/auth/password/reset/${token}`, data, {
+    .post(`${BACKEND_URL}/auth/resend-otp`, email, {
       withCredentials: true,
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
     })
     .then((res) => {
-      dispatch(authSlice.actions.resetPasswordSuccess(res.data));
+      dispatch(authSlice.actions.resendOtpSuccess(res.data.message));
     })
     .catch((error) => {
       dispatch(
-        authSlice.actions.resetPasswordFailed(error.response.data.message)
+        authSlice.actions.resendOtpFailed(
+          error.response?.data?.message || error.message
+        )
       );
     });
 };
 
-export const updatePassword = (data) => async (dispatch) => {
-  dispatch(authSlice.actions.updatePasswordRequest());
+export const signin = (credentials) => async (dispatch) => {
+  dispatch(authSlice.actions.signinRequest());
   await axios
-    .put(`${BACKEND_URL}/auth/password/update`, data, {
+    .post(`${BACKEND_URL}/auth/signin`, credentials, {
       withCredentials: true,
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
     })
     .then((res) => {
-      dispatch(authSlice.actions.updatePasswordSuccess(res.data.message));
+      dispatch(authSlice.actions.signinSuccess(res.data));
     })
     .catch((error) => {
       dispatch(
-        authSlice.actions.updatePasswordFailed(error.response.data.message)
-      );
-    });
-};
-
-export const getMyProfile = () => async (dispatch) => {
-  dispatch(authSlice.actions.getMyProfileRequest());
-  await axios
-    .get(`${BACKEND_URL}/auth/get-my-profile`, {
-      withCredentials: true,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-    .then((res) => {
-      dispatch(authSlice.actions.getMyProfileSuccess(res.data));
-    })
-    .catch((error) => {
-      dispatch(
-        authSlice.actions.getMyProfileFailed(
+        authSlice.actions.signinFailed(
           error.response?.data?.message || error.message
         )
       );

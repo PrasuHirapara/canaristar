@@ -1,13 +1,12 @@
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { logout } from "../store/slices/authSlice";
-import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import {
+  createAdmin,
   getAllUsers,
-  makeAdmin,
   resetAdminSlice,
 } from "../store/slices/adminSlice";
-import { toast } from "react-toastify";
 
 const Profile = () => {
   const dispatch = useDispatch();
@@ -19,13 +18,13 @@ const Profile = () => {
   );
 
   const handleLogout = () => {
-    dispatch(logout());
-    navigate("/login");
+    console.log("Logging out...");
+    navigate("/signin");
   };
 
   const [email, setEmail] = useState("");
 
-  const handleMakeAdmin = (e) => {
+  const handleCreateAdmin = (e) => {
     e.preventDefault();
     if (email === "") {
       alert("please enter valid email! ⚠");
@@ -35,7 +34,7 @@ const Profile = () => {
       email: email,
       password: "randomvalue(not true)",
     };
-    dispatch(makeAdmin(data));
+    dispatch(createAdmin(data));
   };
 
   useEffect(() => {
@@ -54,7 +53,7 @@ const Profile = () => {
   }, [dispatch, message, error]);
 
   return (
-    <div className="min-h-[88vh] flex flex-col items-center gap-5 p-5">
+    <div className="min-h-screen pt-16 flex flex-col items-center gap-5 p-5">
       <h2>Profile</h2>
 
       {isAuthenticated ? (
@@ -69,16 +68,22 @@ const Profile = () => {
             <input
               onChange={(e) => setEmail(e.target.value)}
               type="email"
-              placeholder="enter email for make admin..."
+              placeholder="enter email to create admin..."
               className="border border-black/20 rounded-lg px-3 py-1"
             />
             <button
-              onClick={handleMakeAdmin}
+              onClick={handleCreateAdmin}
               className="bg-amber-900 px-4 py-2 rounded text-white"
             >
-              Make Admin
+              Create Admin
             </button>
           </div>
+          <Link
+            to="/create-product"
+            className="bg-blue-500 rounded-lg py-1 px-3 text-white"
+          >
+            Create Product
+          </Link>
           <div className="p-6">
             <h2 className="text-2xl font-semibold mb-4">All Users</h2>
 
@@ -121,7 +126,7 @@ const Profile = () => {
       ) : (
         <p>
           Not signed in yet?{" "}
-          <Link to="/login" className="underline text-blue-500">
+          <Link to="/signin" className="underline text-blue-500">
             Login
           </Link>{" "}
           here

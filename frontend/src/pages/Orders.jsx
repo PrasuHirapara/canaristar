@@ -1,7 +1,7 @@
 import React from "react";
 
 const Orders = () => {
-  return <div className="min-h-[88vh]">Orders</div>;
+  return <div className="min-h-screen pt-16">Orders</div>;
 };
 
 export default Orders;

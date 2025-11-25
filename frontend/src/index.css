@@ -5,7 +5,6 @@ html {
   scroll-behavior: smooth;
 }
 
-
 @keyframes infinite-scroll {
   0% {
     transform: translateX(0);

@@ -5,7 +5,15 @@ const ProductCard = ({ product }) => {
     <div className="p-5 bg-white rounded-xl shadow-md hover:shadow-lg transition border border-gray-200">
       {/* Product Image */}
       <div className="w-full mb-4 overflow-hidden rounded-lg bg-gray-100">
-        <img src={product?.imageUrls?.[0] || ""} alt={product?.productName} />
+        {product?.imageUrls?.[0] ? (
+          <img src={product?.imageUrls?.[0]} alt={product?.productName} />
+        ) : (
+          <img
+            src="/images/logo.jpg"
+            alt={product?.productName}
+            className="grayscale-100 opacity-20"
+          />
+        )}
       </div>
 
       {/* Name */}
@@ -45,15 +53,7 @@ const ProductCard = ({ product }) => {
           <span className="font-semibold">Sub-Category:</span>{" "}
           {product?.productSubCategory}
         </p>
-        <p>
-          <span className="font-semibold">Weight:</span> {product?.weight}
-        </p>
       </div>
-
-      {/* Description */}
-      <p className="text-gray-600 text-sm leading-relaxed">
-        {product?.productDescription}
-      </p>
     </div>
   );
 };

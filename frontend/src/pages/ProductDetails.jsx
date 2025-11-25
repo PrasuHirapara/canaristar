@@ -36,7 +36,7 @@ const ProductDetails = () => {
   }, [dispatch, message, error]);
 
   return (
-    <div className="p-6 bg-white rounded-xl shadow-md max-w-4xl mx-auto">
+    <div className="p-6 bg-white rounded-xl shadow-md max-w-4xl min-h-screen mx-auto">
       {/* Product Title */}
       <h3 className="text-2xl font-bold mb-4 text-gray-800">
         {product?.productName}

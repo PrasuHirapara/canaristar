@@ -19,7 +19,11 @@ const InfiniteSlider = () => {
       <div className="flex gap-6 animate-infinite-scroll">
         {/* Original images */}
         {images.map((src, i) => (
-          <img key={i} src={src} className="h-50 w-auto object-contain" />
+          <img
+            key={i}
+            src={src}
+            className="h-40 md:h-50 w-auto object-contain"
+          />
         ))}
 
         {/* Duplicate images for seamless loop */}
