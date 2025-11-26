@@ -121,16 +121,16 @@ public class AuthServiceImpl implements AuthService {
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         cookie.setMaxAge(24 * 60 * 60);
-        cookie.setAttribute("SameSite", "None");
 
         if (appEnv.equals("dev")) {
+            cookie.setAttribute("SameSite", "Lax");
             cookie.setSecure(false);
         } else {
+            cookie.setAttribute("SameSite", "None");
             cookie.setSecure(true);
         }
 
         httpResponse.addCookie(cookie);
-
         return new AuthResponse(true, user.getId(), null);
     }
 
