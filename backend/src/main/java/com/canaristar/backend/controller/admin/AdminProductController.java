@@ -29,7 +29,7 @@ public class AdminProductController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(consumes = {"multipart/form-data"})
     public ResponseEntity<?> createProduct(
-            @Valid @RequestPart("product") Products product,
+            @Valid @ModelAttribute ("product") Products product,
             @RequestPart(value = "files", required = false) MultipartFile[] files
     ) throws Exception {
         List<String> urls = new LinkedList<>();

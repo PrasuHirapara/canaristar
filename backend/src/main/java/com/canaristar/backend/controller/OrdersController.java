@@ -31,7 +31,7 @@ public class OrdersController {
         Orders savedOrder = ordersService.createOrder(orders);
 
         if (savedOrder == null) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Failed to create order"));
+            return ResponseEntity.badRequest().body("Failed to create order");
         }
 
         String razorpayOrderId = razorpayPaymentService.initializePayment(savedOrder);
@@ -41,7 +41,7 @@ public class OrdersController {
         Orders updatedOrder = ordersService.updateOrder(savedOrder.getId(), savedOrder);
 
         if(updatedOrder == null) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Failed to update order"));
+            return ResponseEntity.badRequest().body("Failed to update order");
         }
 
         return ResponseEntity.ok(Map.of(
@@ -59,19 +59,19 @@ public class OrdersController {
         Orders orders = ordersService.findOrderById(id);
 
         if (orders == null) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Order not found"));
+            return ResponseEntity.badRequest().body("Order not found");
         }
 
         String paymentId = body.get("razorpayPaymentId");
 
         if (paymentId == null || paymentId.isBlank()) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Payment ID missing"));
+            return ResponseEntity.badRequest().body("Payment ID Missing");
         }
 
         String signature = body.get("razorpaySignature");
 
         if (signature == null || signature.isBlank()) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Signature missing"));
+            return ResponseEntity.badRequest().body("Signature missing");
         }
 
         boolean valid = razorpayPaymentService.verifyPayment(

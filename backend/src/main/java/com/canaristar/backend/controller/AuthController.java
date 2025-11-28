@@ -6,6 +6,7 @@ import com.canaristar.backend.request.VerifyOtpRequest;
 import com.canaristar.backend.response.AuthResponse;
 import com.canaristar.backend.service.auth.AuthService;
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,21 @@ public class AuthController {
                                                HttpServletRequest httpRequest,
                                                HttpServletResponse httpResponse) {
         return ResponseEntity.ok(authService.signin(request, httpRequest, httpResponse));
+    }
+
+    @PostMapping("/signout")
+    public ResponseEntity<?> signout(HttpServletResponse response) {
+        Cookie cookie = new Cookie("jwt", null);
+
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        cookie.setAttribute("SameSite", "Lax");
+
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok().body("Logout Successful");
     }
 
     @PostMapping("/resend-otp")

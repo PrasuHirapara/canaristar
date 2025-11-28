@@ -127,19 +127,4 @@ public class UserController {
 
         return ResponseEntity.ok("Password updated");
     }
-
-    @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletResponse response) {
-        Cookie cookie = new Cookie("jwt", null);
-
-        cookie.setHttpOnly(true);
-        cookie.setSecure(false);
-        cookie.setPath("/");
-        cookie.setMaxAge(0);
-        cookie.setAttribute("SameSite", "Lax");
-
-        response.addCookie(cookie);
-
-        return ResponseEntity.ok().body("Logout Successful");
-    }
 }

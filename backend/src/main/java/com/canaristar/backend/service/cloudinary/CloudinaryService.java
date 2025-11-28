@@ -23,17 +23,37 @@ public class CloudinaryService {
 
     public String uploadProductImage(MultipartFile file) throws Exception {
 
-        Map result = uploader.upload(
-                file.getBytes(),
-                Map.of(
-                        "folder", "products",
-                        "resource_type", "image"
-                )
-        );
+       try{
+           Map result = uploader.upload(
+                   file.getBytes(),
+                   Map.of(
+                           "folder", "products",
+                           "resource_type", "image"
+                   )
+           );
 
-        System.out.println(result);
+           return result.get("secure_url").toString();
+       } catch (Exception e) {
+           throw new Exception("Error uploading image: " + e.getMessage());
+       }
 
-        return result.get("secure_url").toString();
+    }
+
+    public String uploadContactUsImage(MultipartFile file) throws Exception {
+
+        try{
+            Map result = uploader.upload(
+                    file.getBytes(),
+                    Map.of(
+                            "folder", "contactus",
+                            "resource_type", "image"
+                    )
+            );
+
+            return result.get("secure_url").toString();
+        } catch (Exception e) {
+            throw new Exception("Error uploading image: " + e.getMessage());
+        }
     }
 
     public String extractPublicId(String url) {

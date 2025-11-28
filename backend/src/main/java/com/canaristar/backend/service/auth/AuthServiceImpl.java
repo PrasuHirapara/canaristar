@@ -88,8 +88,6 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponse signin(AuthRequest request, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
 
-        System.out.println(appEnv);
-
         String existingToken = null;
         if (httpRequest.getCookies() != null) {
             for (Cookie c : httpRequest.getCookies()) {
