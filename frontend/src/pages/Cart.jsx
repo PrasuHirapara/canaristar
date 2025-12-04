@@ -5,18 +5,31 @@ import {
   getCartByUserId,
   removeItemFromCart,
   updateCartItem,
+  resetCartSlice,
 } from "../store/slices/cartSlice";
+import { toast } from "react-toastify";
 
 const Cart = () => {
   const dispatch = useDispatch();
   const [total, setTotal] = useState(0);
 
-  const { cart, loading } = useSelector((state) => state.cart);
+  const { cart, error, message, loading } = useSelector((state) => state.cart);
   const { userId } = useSelector((state) => state.auth);
 
   useEffect(() => {
+    if (message) {
+      toast.success(message);
+      dispatch(resetCartSlice());
+    }
+    if (error) {
+      toast.error(error);
+      dispatch(resetCartSlice());
+    }
+  }, [dispatch, message, error]);
+
+  useEffect(() => {
     if (userId) dispatch(getCartByUserId(userId));
-    console.log(cart);
+    // console.log(cart);
   }, [userId]);
 
   const increaseQty = (item) => {

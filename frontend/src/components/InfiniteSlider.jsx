@@ -24,7 +24,7 @@ const InfiniteSlider = () => {
           />
         ))}
 
-        {/* Duplicate images for seamless loop */}
+        {/* Duplicate images for loop */}
         {images.map((src, i) => (
           <img
             key={"copy-" + i}

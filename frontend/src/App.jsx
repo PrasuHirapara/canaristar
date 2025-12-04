@@ -4,17 +4,18 @@ import Footer from "./Layout/Footer";
 import Header from "./Layout/Header";
 import Cart from "./pages/Cart";
 import Contact from "./pages/Contact";
+import ContactDetails from "./pages/ContactDetails";
+import CreateProduct from "./pages/CreateProduct";
 import Home from "./pages/Home";
-import SignIn from "./pages/SignIn";
+import Menu from "./pages/Menu";
 import NotFound from "./pages/NotFound";
 import Orders from "./pages/Orders";
 import OTP from "./pages/OTP";
 import ProductDetails from "./pages/ProductDetails";
 import Profile from "./pages/Profile";
+import SearchProducts from "./pages/SearchProducts";
+import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
-import Search from "./pages/Search";
-import Menu from "./pages/Menu";
-import CreateProduct from "./pages/CreateProduct";
 
 function App() {
   return (
@@ -29,7 +30,7 @@ function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/otp-verification/:email" element={<OTP />} />
 
-        <Route path="/search" element={<Search />} />
+        <Route path="/search" element={<SearchProducts />} />
         <Route path="/menu" element={<Menu />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/orders" element={<Orders />} />
@@ -37,6 +38,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
 
         <Route path="/product-details/:id" element={<ProductDetails />} />
+        <Route path="/contact-details/:id" element={<ContactDetails />} />
 
         <Route path="/create-product" element={<CreateProduct />} />
 

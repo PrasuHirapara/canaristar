@@ -140,7 +140,6 @@ const SignIn = () => {
               <button
                 type="submit"
                 disabled={loading}
-                // Rich cocoa gradient and animated effect
                 className="w-full bg-gradient-to-r from-amber-900 to-amber-700 text-white font-bold tracking-widest rounded-xl py-3 shadow-lg 
                                            hover:shadow-amber-500/50 hover:from-amber-800 hover:to-amber-600 transition duration-300 ease-in-out transform hover:scale-[1.01] focus:ring-4 focus:ring-amber-300 focus:outline-none disabled:opacity-50"
               >

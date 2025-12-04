@@ -11,6 +11,7 @@ import {
   getProductsByCategory,
   getProductsBySubCategory,
 } from "../store/slices/productsSlice";
+import { useSearchParams } from "react-router-dom";
 
 const categories = ["CHOCOLATE", "GIFT_BOX", "PREMIUM_HERBS"];
 
@@ -31,14 +32,42 @@ const Menu = () => {
     category: "",
     subCategory: "",
     search: "",
-    type: "ALL", // ALL | ACTIVE | FEATURED | ACTIVE_FEATURED
+    type: "ALL",
   });
 
   const [openMobileFilter, setOpenMobileFilter] = useState(false);
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    const subCategoryFromUrl = searchParams.get("subCategory");
+    const categoryFromUrl = searchParams.get("category");
+    const searchFromUrl = searchParams.get("search");
+
+    if (subCategoryFromUrl) {
+      setFilter((prev) => ({
+        ...prev,
+        subCategory: subCategoryFromUrl,
+      }));
+    }
+
+    if (categoryFromUrl) {
+      setFilter((prev) => ({
+        ...prev,
+        category: categoryFromUrl,
+      }));
+    }
+
+    if (searchFromUrl) {
+      setFilter((prev) => ({
+        ...prev,
+        search: searchFromUrl,
+      }));
+    }
+  }, []);
 
   useEffect(() => {
     applyFilters();
-  }, [filter]);
+  }, [filter, dispatch]);
 
   const applyFilters = () => {
     if (filter.search.trim() !== "") {

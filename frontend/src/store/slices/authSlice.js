@@ -84,6 +84,7 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       localStorage.removeItem("isAuthenticated");
       localStorage.removeItem("userId");
+      state.userId = null;
     },
 
     resetAuthSlice(state) {
