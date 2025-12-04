@@ -68,6 +68,11 @@ const productsSlice = createSlice({
       state.products = action.payload;
     },
 
+    searchProductsSuccess(state, action) {
+      state.loading = false;
+      state.products = action.payload;
+    },
+
     resetProductsSlice(state) {
       state.loading = false;
       state.error = null;
@@ -224,6 +229,25 @@ export const getActiveProductsByCategory = (category) => async (dispatch) => {
     })
     .then((res) => {
       dispatch(productsSlice.actions.activeProductsByCategorySuccess(res.data));
+    })
+    .catch((error) => {
+      dispatch(
+        productsSlice.actions.requestFailed(
+          error.response?.data?.message || error.message
+        )
+      );
+    });
+};
+
+export const searchProducts = (searchTerm) => async (dispatch) => {
+  dispatch(productsSlice.actions.requestStart());
+
+  await axios
+    .get(`${BACKEND_URL}/products/search?searchTerm=${searchTerm}`, {
+      withCredentials: true,
+    })
+    .then((res) => {
+      dispatch(productsSlice.actions.searchProductsSuccess(res.data));
     })
     .catch((error) => {
       dispatch(

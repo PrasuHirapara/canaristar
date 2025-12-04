@@ -1,4 +1,4 @@
-import { ShoppingCart } from "lucide-react"; // example icon
+import { ShoppingCart } from "lucide-react";
 import { useState } from "react";
 import InfiniteSlider from "../components/InfiniteSlider";
 import Slider from "../components/Slider";

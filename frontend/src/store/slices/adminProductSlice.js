@@ -175,7 +175,7 @@ export const uploadProductImage = (id, formData) => async (dispatch) => {
     );
 
     dispatch(adminProductSlice.actions.uploadImageSuccess(res.data));
-    return { payload: res.data }; // return uploaded URL
+    return { payload: res.data };
   } catch (error) {
     dispatch(
       adminProductSlice.actions.uploadImageFailed(

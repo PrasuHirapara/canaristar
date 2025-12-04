@@ -30,9 +30,8 @@ const Profile = () => {
   useEffect(() => {
     if (userId) {
       dispatch(getUserById(userId));
-      console.log(user);
     }
-  }, []);
+  }, [dispatch]);
 
   const handleSignOut = () => {
     dispatch(signout());
@@ -52,7 +51,7 @@ const Profile = () => {
     if (user?.role === "ADMIN") {
       dispatch(getAllUsers());
     }
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     if (message || msg) {
