@@ -1,43 +1,38 @@
-import { ShoppingCart } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import InfiniteSlider from "../components/InfiniteSlider";
 import Slider from "../components/Slider";
-
-const products = [
-  {
-    name: "Dark Chocolate Truffle",
-    price: 499,
-    image: "/images/slider/image1.png",
-  },
-  {
-    name: "Milk Chocolate Delight",
-    price: 299,
-    image: "/images/slider/image2.png",
-  },
-  {
-    name: "Nutty Chocolate Bar",
-    price: 399,
-    image: "/images/slider/image3.png",
-  },
-  {
-    name: "White Chocolate Heaven",
-    price: 349,
-    image: "/images/slider/image4.png",
-  },
-  {
-    name: "Milk Chocolate Delight",
-    price: 299,
-    image: "/images/slider/image5.png",
-  },
-];
-
-const testimonials = [
-  { name: "Sonia", text: "Best chocolates ever! My family loves them." },
-  { name: "Rahul", text: "Handmade and delicious. Highly recommend!" },
-  { name: "Anita", text: "Perfect gift for my friends. Loved the packaging." },
-];
+import {
+  getAllCarousels,
+  getCarouselById,
+  getFeaturedCarousels,
+} from "../store/slices/carouselSlice";
 
 export default function HomePage() {
+  const dispatch = useDispatch();
+  const [start, setStart] = useState("2025-01-01T00:00:00");
+  const [end, setEnd] = useState("2025-01-31T23:59:59");
+
+  const {
+    loading,
+    error,
+    carousels,
+    featuredCarousels,
+    carouselById,
+    rangeCarousels,
+  } = useSelector((state) => state.carousel);
+
+  useEffect(() => {
+    dispatch(getAllCarousels());
+    // console.log("Carousels: ", carousels);
+    dispatch(getFeaturedCarousels());
+    // console.log("Featured Carousels: ", featuredCarousels);
+    // dispatch(getCarouselById(id));
+    // console.log(carouselById);
+    // dispatch(getCarouselsByRange(start, end));
+  }, []);
+
   const [email, setEmail] = useState("");
 
   return (
@@ -50,23 +45,33 @@ export default function HomePage() {
         <h2 className="text-amber-900 font-bold text-center text-3xl mb-8">
           Our Special Products
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map((p, i) => (
-            <div
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {featuredCarousels.map((p, i) => (
+            <Link
+              to={p.redirectUrl}
               key={i}
-              className="bg-white/80 text-amber-950 rounded-xl p-4 flex flex-col items-center shadow hover:shadow-lg transition"
+              className="group block bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200"
             >
-              <img
-                src={p.image}
-                alt={p.name}
-                className="w-full aspect-square object-cover rounded-lg mb-4"
-              />
-              <h3 className="font-semibold text-lg">{p.name}</h3>
-              <p className="text-green-600 font-bold">₹{p.price}</p>
-              <button className="mt-3 bg-amber-900 text-white px-4 py-1 rounded hover:bg-amber-700 transition flex items-center gap-2">
-                <ShoppingCart size={16} /> Add to Cart
-              </button>
-            </div>
+              {/* Image */}
+              <div className="w-full overflow-hidden">
+                <img
+                  src={p.imageUrl}
+                  alt={p.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+
+              {/* Content */}
+              <div className="p-4">
+                <p className="text-xl font-semibold text-gray-800 group-hover:text-blue-600 transition">
+                  {p.title}
+                </p>
+
+                <p className="text-lg font-bold text-amber-600 mt-1">
+                  {p.description}
+                </p>
+              </div>
+            </Link>
           ))}
         </div>
       </section>
@@ -89,45 +94,6 @@ export default function HomePage() {
             every chocolate is handmade using premium ingredients, ensuring an
             unforgettable taste experience for you and your loved ones.
           </p>
-        </div>
-      </section>
-
-      <section className="py-12 px-4">
-        <h2 className="text-amber-900 font-bold text-center text-3xl mb-8">
-          What Our Customers Say
-        </h2>
-        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {testimonials.map((t, i) => (
-            <div
-              key={i}
-              className="bg-white/80 text-amber-950 rounded-xl p-6 shadow hover:shadow-lg transition"
-            >
-              <p className="italic mb-4">"{t.text}"</p>
-              <p className="font-semibold text-right">- {t.name}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="py-12 px-4 bg-amber-200">
-        <h2 className="text-amber-900 font-bold text-center text-3xl mb-4">
-          Join Our Chocolate Club
-        </h2>
-        <p className="text-center text-gray-800 mb-6">
-          Get the latest flavors and exclusive discounts delivered to your
-          inbox.
-        </p>
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-4 max-w-xl mx-auto">
-          <input
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="px-4 py-2 rounded-md border border-amber-900 flex-1 focus:outline-none text-black"
-          />
-          <button className="bg-amber-900 text-white px-6 py-2 rounded-md hover:bg-amber-700 transition">
-            Subscribe
-          </button>
         </div>
       </section>
     </div>

@@ -16,6 +16,8 @@ import Profile from "./pages/Profile";
 import SearchProducts from "./pages/SearchProducts";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
+import Analytics from "./components/Analytics";
+import AdminProductDataDetails from "./pages/AdminProductDataDetails";
 
 function App() {
   return (
@@ -36,11 +38,16 @@ function App() {
         <Route path="/orders" element={<Orders />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/analytics" element={<Analytics />} />
 
         <Route path="/product-details/:id" element={<ProductDetails />} />
         <Route path="/contact-details/:id" element={<ContactDetails />} />
 
         <Route path="/create-product" element={<CreateProduct />} />
+        <Route
+          path="/admin-product-data-details/:id"
+          element={<AdminProductDataDetails />}
+        />
 
         <Route path="*" element={<NotFound />} />
       </Routes>

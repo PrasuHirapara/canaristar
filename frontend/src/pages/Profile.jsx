@@ -17,6 +17,8 @@ import {
   updateUser,
   verifyPassword,
 } from "../store/slices/userSlice";
+import AdminDayData from "../components/AdminDayData";
+import AdminProductData from "../components/AdminProductData";
 
 const Profile = () => {
   const dispatch = useDispatch();
@@ -282,7 +284,10 @@ const Profile = () => {
           >
             Create Product
           </Link>
-          <AdminUsers />
+
+          {user?.role === "ADMIN" && <AdminUsers />}
+          {user?.role === "ADMIN" && <AdminDayData />}
+          {user?.role === "ADMIN" && <AdminProductData />}
         </>
       )}
 

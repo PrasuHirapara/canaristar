@@ -58,7 +58,7 @@ const AdminUsers = () => {
   };
 
   return (
-    <div className="p-5 md:p-10 min-h-screen bg-gray-50">
+    <div className="p-5 md:p-10 bg-gray-50">
       <h1 className="text-2xl font-bold mb-6">Users Management</h1>
 
       {/* Filters Section */}
