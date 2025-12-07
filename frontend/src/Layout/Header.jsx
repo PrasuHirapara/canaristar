@@ -1,4 +1,11 @@
-import { CircleUser, Handbag, Menu, Phone, ShoppingCart } from "lucide-react";
+import {
+  ChartBarBig,
+  CircleUser,
+  Handbag,
+  Menu,
+  Phone,
+  ShoppingCart,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
 
@@ -33,6 +40,13 @@ const Header = () => {
               <div className="flex flex-col items-center">
                 <Handbag size={20} />
                 <p className="text-sm">Orders</p>
+              </div>
+            </Link>
+
+            <Link to="/analytics">
+              <div className="flex flex-col items-center">
+                <ChartBarBig size={20} />
+                <p className="text-sm">Analytics</p>
               </div>
             </Link>
 
@@ -84,6 +98,13 @@ const Header = () => {
               <div className="flex flex-col items-center">
                 <Handbag size={20} />
                 <p>Orders</p>
+              </div>
+            </Link>
+
+            <Link to="/analytics">
+              <div className="flex flex-col items-center">
+                <ChartBarBig size={20} />
+                <p className="text-sm">Analytics</p>
               </div>
             </Link>
 
