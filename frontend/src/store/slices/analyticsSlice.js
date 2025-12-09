@@ -42,7 +42,7 @@ export const getTopViewedProducts = () => async (dispatch) => {
   dispatch(analyticsSlice.actions.request());
 
   await axios
-    .get(`${BACKEND_URL}/api/analytics/top-viewed`, { withCredentials: true })
+    .get(`${BACKEND_URL}/analytics/top-viewed`, { withCredentials: true })
     .then((res) => {
       dispatch(analyticsSlice.actions.topViewedSuccess(res.data));
     })
@@ -59,7 +59,7 @@ export const getTopOrderedProducts = () => async (dispatch) => {
   dispatch(analyticsSlice.actions.request());
 
   await axios
-    .get(`${BACKEND_URL}/api/analytics/top-ordered`, { withCredentials: true })
+    .get(`${BACKEND_URL}/analytics/top-ordered`, { withCredentials: true })
     .then((res) => {
       dispatch(analyticsSlice.actions.topOrderedSuccess(res.data));
     })
@@ -76,7 +76,7 @@ export const getTopRatedProducts = () => async (dispatch) => {
   dispatch(analyticsSlice.actions.request());
 
   await axios
-    .get(`${BACKEND_URL}/api/analytics/top-rated`, { withCredentials: true })
+    .get(`${BACKEND_URL}/analytics/top-rated`, { withCredentials: true })
     .then((res) => {
       dispatch(analyticsSlice.actions.topRatedSuccess(res.data));
     })
