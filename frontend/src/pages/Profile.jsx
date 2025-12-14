@@ -19,6 +19,7 @@ import {
 } from "../store/slices/userSlice";
 import AdminDayData from "../components/AdminDayData";
 import AdminProductData from "../components/AdminProductData";
+import AdminCarousel from "../components/AdminCarousel";
 
 const Profile = () => {
   const dispatch = useDispatch();
@@ -288,6 +289,7 @@ const Profile = () => {
           {user?.role === "ADMIN" && <AdminUsers />}
           {user?.role === "ADMIN" && <AdminDayData />}
           {user?.role === "ADMIN" && <AdminProductData />}
+          {user?.role === "ADMIN" && <AdminCarousel />}
         </>
       )}
 
