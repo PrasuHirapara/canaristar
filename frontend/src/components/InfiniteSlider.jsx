@@ -57,7 +57,7 @@ const InfiniteSlider = () => {
                   draggable="false"
                   loading="lazy"
                   src={c.imageUrl}
-                  className="w-full opcaity-90 hover:opacity-100 hover:scale-105 hover:brightness-110 hover:contrast-125 transition-transform duration-200 rounded-lg"
+                  className="w-full aspect-square opcaity-90 hover:opacity-100 hover:scale-105 hover:brightness-110 hover:contrast-125 transition-transform duration-200 rounded-lg"
                 />
                 <p className="px-2 pb-0.5 text-center text-md absolute text-gray-300 bg-linear-to-b to-black/80 w-45 md:w-50 bottom-0 rounded-b-lg">
                   {c?.title}
@@ -80,7 +80,7 @@ const InfiniteSlider = () => {
                   draggable="false"
                   loading="lazy"
                   src={c.imageUrl}
-                  className="w-full rounded-lg"
+                  className="w-full aspect-square rounded-lg"
                 />
               </Link>
             ))}

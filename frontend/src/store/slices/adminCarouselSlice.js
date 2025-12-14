@@ -4,7 +4,7 @@ import axios from "axios";
 const BACKEND_URL = import.meta.env.VITE_BASE_URL;
 
 const adminCarouselSlice = createSlice({
-  name: "carousel",
+  name: "adminCarousel",
   initialState: {
     loading: false,
     error: null,
@@ -21,7 +21,7 @@ const adminCarouselSlice = createSlice({
 
     requestSuccess(state, action) {
       state.loading = false;
-      state.message = action.payload;
+      state.message = action.payload.message;
     },
 
     requestFailed(state, action) {
