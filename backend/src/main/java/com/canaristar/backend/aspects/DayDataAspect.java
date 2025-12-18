@@ -24,7 +24,7 @@ public class DayDataAspect {
             argNames = "order"
     )
     public void trackOrder(Orders order) {
-        dayDataService.addOrder(order.getId(), order.getTotalPrice());
+        dayDataService.addOrder(order.getId(), order.getTotalPrice().doubleValue());
     }
 
     @AfterReturning("execution(* com.canaristar.backend.service.user.UserService.registerUser(..))")

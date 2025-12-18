@@ -6,10 +6,12 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface OrdersRepository extends MongoRepository<Orders, String> {
     List<Orders> findByUserId(String userId);
     List<Orders> findByOrdersType(OrdersType ordersType);
     List<Orders> findByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
+    Optional<Orders> findByIdempotencyKey(String idempotencyKey);
 }

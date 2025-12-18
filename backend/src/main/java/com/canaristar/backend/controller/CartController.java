@@ -26,6 +26,7 @@ public class CartController {
         if (cart == null) {
             cart = new Cart();
             cart.setUserId(userId);
+
             cart = cartService.saveCart(cart);
         }
 

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -22,29 +23,43 @@ public class OrdersController {
     @Autowired
     private RazorpayPaymentService razorpayPaymentService;
 
-
     @PostMapping
-    public ResponseEntity<?> createOrder(@RequestBody Orders orders) throws Exception {
+    public ResponseEntity<?> createOrder(
+            @RequestHeader("Idempotency-Key") String idempotencyKey,
+            @RequestBody Orders orders) throws Exception {
 
-        orders.setOrdersType(OrdersType.STARTED);
-
-        Orders savedOrder = ordersService.createOrder(orders);
-
-        if (savedOrder == null) {
-            return ResponseEntity.badRequest().body("Failed to create order");
+        if (idempotencyKey == null || idempotencyKey.isBlank()) {
+            return ResponseEntity.badRequest().body("Idempotency-Key missing");
         }
 
-        String razorpayOrderId = razorpayPaymentService.initializePayment(savedOrder);
-        savedOrder.setRazorpayOrderId(razorpayOrderId);
-        savedOrder.setOrdersType(OrdersType.PROCESSING);
+        String requestHash =
+                orders.getUserId() + "|" +
+                        orders.getTotalPrice().stripTrailingZeros().toPlainString() + "|" +
+                        orders.getDiscountPrice().stripTrailingZeros().toPlainString() + "|" +
+                        orders.getCartItems().size();
+
+        Orders savedOrder = ordersService.createOrderIdempotent(
+                orders,
+                idempotencyKey,
+                requestHash
+        );
+
+        if (savedOrder.getRazorpayOrderId() == null) {
+            String razorpayOrderId =
+                    razorpayPaymentService.initializePayment(savedOrder);
+
+            savedOrder.setRazorpayOrderId(razorpayOrderId);
+            savedOrder.setOrdersType(OrdersType.PROCESSING);
+
+            ordersService.updateOrder(savedOrder.getId(), savedOrder);
+        }
 
         return ResponseEntity.ok(Map.of(
-                "message", "Order created and Razorpay order initialized",
+                "message", "Order created",
                 "order", savedOrder,
-                "razorpayOrderId", razorpayOrderId
+                "razorpayOrderId", savedOrder.getRazorpayOrderId()
         ));
     }
-
 
     @PostMapping("/{id}/payment/verify")
     public ResponseEntity<?> verifyPayment(@PathVariable String id,
@@ -57,12 +72,11 @@ public class OrdersController {
         }
 
         String paymentId = body.get("razorpayPaymentId");
+        String signature = body.get("razorpaySignature");
 
         if (paymentId == null || paymentId.isBlank()) {
             return ResponseEntity.badRequest().body("Payment ID Missing");
         }
-
-        String signature = body.get("razorpaySignature");
 
         if (signature == null || signature.isBlank()) {
             return ResponseEntity.badRequest().body("Signature missing");
@@ -75,63 +89,48 @@ public class OrdersController {
         );
 
         if (valid) {
-
             order.setRazorpayPaymentId(paymentId);
             order.setRazorpaySignature(signature);
             order.setOrdersType(OrdersType.COMPLETED);
-
             ordersService.updateOrder(id, order);
 
             return ResponseEntity.ok(Map.of(
                     "message", "Payment verified successfully",
                     "order", order
             ));
-
-        } else {
-
-            order.setOrdersType(OrdersType.CANCELED);
-            ordersService.updateOrder(id, order);
-
-            return ResponseEntity.status(400).body(Map.of(
-                    "message", "Payment verification failed",
-                    "order", order
-            ));
         }
+
+        order.setOrdersType(OrdersType.CANCELED);
+        ordersService.updateOrder(id, order);
+
+        return ResponseEntity.status(400).body(Map.of(
+                "message", "Payment verification failed",
+                "order", order
+        ));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getOrder(@PathVariable String id) {
         Orders orders = ordersService.findOrderById(id);
-
-        if (orders == null) {
-            return ResponseEntity.notFound().build();
-        }
-
+        if (orders == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(orders);
     }
-
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Orders>> getUserOrders(@PathVariable String userId) {
-        List<Orders> orders = ordersService.findOrdersByUserId(userId);
-
-        return ResponseEntity.ok(orders);
+        return ResponseEntity.ok(ordersService.findOrdersByUserId(userId));
     }
-
 
     @GetMapping
     public ResponseEntity<List<Orders>> getAllOrders() {
         List<Orders> orders = ordersService.findAllOrders();
-
-        if (orders == null || orders.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
+        if (orders == null || orders.isEmpty()) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(orders);
     }
 
     @GetMapping("/between")
     public ResponseEntity<?> getOrdersBetween(@RequestParam String start, @RequestParam String end) {
+
         LocalDateTime startTime;
         LocalDateTime endTime;
 
@@ -142,16 +141,15 @@ public class OrdersController {
             return ResponseEntity.badRequest().body(Map.of("message", "Invalid datetime format"));
         }
 
-        List<Orders> orders = ordersService.findOrdersBetween(startTime, endTime);
-
-        return ResponseEntity.ok(orders);
+        return ResponseEntity.ok(
+                ordersService.findOrdersBetween(startTime, endTime)
+        );
     }
-
 
     @GetMapping("/type/{ordersType}")
     public ResponseEntity<?> getOrdersByType(@PathVariable OrdersType ordersType) {
-        List<Orders> orders = ordersService.findOrdersByOrderType(ordersType);
-
-        return ResponseEntity.ok(orders);
+        return ResponseEntity.ok(
+                ordersService.findOrdersByOrderType(ordersType)
+        );
     }
 }

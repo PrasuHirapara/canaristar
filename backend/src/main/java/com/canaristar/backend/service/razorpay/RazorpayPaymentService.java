@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Service
 public class RazorpayPaymentService {
@@ -20,29 +22,38 @@ public class RazorpayPaymentService {
     @Value("${razorpay.secret}")
     private String secret;
 
-
     public String initializePayment(Orders orders) throws Exception {
 
         RazorpayClient client = new RazorpayClient(key, secret);
 
+        BigDecimal payableAmount =
+                orders.getTotalPrice().subtract(orders.getDiscountPrice());
+
+        long amountInPaise =
+                payableAmount
+                        .multiply(BigDecimal.valueOf(100))
+                        .setScale(0, RoundingMode.HALF_UP)
+                        .longValueExact();
+
         JSONObject request = new JSONObject();
-        request.put("amount", (int)((orders.getTotalPrice() - orders.getDiscountPrice()) * 100));
+        request.put("amount", amountInPaise);
         request.put("currency", "INR");
         request.put("receipt", orders.getId());
 
-//        razor payment order
         Order razorpayOrder = client.orders.create(request);
 
         return razorpayOrder.get("id");
     }
 
-
-    public boolean verifyPayment(String razorpayOrderId, String razorpayPaymentId, String razorpaySignature) throws Exception {
+    public boolean verifyPayment(String razorpayOrderId,
+                                 String razorpayPaymentId,
+                                 String razorpaySignature) throws Exception {
 
         String payload = razorpayOrderId + "|" + razorpayPaymentId;
 
         Mac mac = Mac.getInstance("HmacSHA256");
-        SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes(), "HmacSHA256");
+        SecretKeySpec secretKeySpec =
+                new SecretKeySpec(secret.getBytes(), "HmacSHA256");
 
         mac.init(secretKeySpec);
         byte[] digest = mac.doFinal(payload.getBytes());

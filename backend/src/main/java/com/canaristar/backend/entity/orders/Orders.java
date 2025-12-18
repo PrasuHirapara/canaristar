@@ -10,6 +10,7 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,6 +24,8 @@ public class Orders {
     @NotBlank
     private String userId;
 
+    private String idempotencyKey;
+
     @NotNull
     private Address address;
 
@@ -31,8 +34,8 @@ public class Orders {
 
     private OrdersType ordersType = OrdersType.STARTED;
 
-    private float totalPrice;
-    private float discountPrice;
+    private BigDecimal totalPrice;
+    private BigDecimal discountPrice;
 
     private String razorpayOrderId;
     private String razorpayPaymentId;
