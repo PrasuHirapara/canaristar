@@ -11,11 +11,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api/admin/product-data")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminProductDataController {
+
+    private static final Logger logger = LoggerFactory.getLogger(AdminProductDataController.class);
 
     @Autowired
     private ProductDataService productDataService;

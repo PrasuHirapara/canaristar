@@ -8,11 +8,15 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api/admin/day-data")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminDayDataController {
+
+    private static final Logger logger = LoggerFactory.getLogger(AdminDayDataController.class);
 
     @Autowired
     private DayDataService dayDataService;

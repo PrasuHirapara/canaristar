@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.LinkedList;
@@ -25,8 +27,11 @@ public class ContactUsController {
     @Autowired
     private CloudinaryService cloudinaryService;
 
+    private static final Logger logger = LoggerFactory.getLogger(ContactUsController.class);
+
     @GetMapping("/all")
     public ResponseEntity<?> findAllByEmail(@RequestParam String email) {
+
         List<ContactUs> list = contactUsService.findByEmail(email);
 
         if (list.isEmpty()) {
