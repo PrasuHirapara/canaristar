@@ -3,22 +3,16 @@ package com.canaristar.backend.service.email;
 import com.canaristar.backend.entity.ContactUs;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 @Service
-@Slf4j
 public class EmailService {
 
     @Autowired
     private JavaMailSender mailSender;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(EmailService.class);
 
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
@@ -40,9 +34,7 @@ public class EmailService {
             helper.setText(text, true);
             helper.setTo(email);
             mailSender.send(mimeMessage);
-            LOGGER.info("OTP sent to: {}", email);
         } catch (Exception e) {
-            LOGGER.error("Failed to send OTP: {}", e.getMessage(), e);
             throw new MessagingException("Error while sending OTP email", e);
         }
     }
@@ -73,9 +65,7 @@ public class EmailService {
             helper.setText(text, true);
             helper.setTo(email);
             mailSender.send(mimeMessage);
-            LOGGER.info("Contact Us confirmation sent to: {}", email);
         } catch (Exception e) {
-            LOGGER.error("Failed to send contact request email: {}", e.getMessage(), e);
             throw new MessagingException("Error while sending Contact Us email", e);
         }
     }
@@ -102,9 +92,7 @@ public class EmailService {
             helper.setText(text, true);
             helper.setTo(email);
             mailSender.send(mimeMessage);
-            LOGGER.info("Contact Us reply sent to: {}", email);
         } catch (Exception e) {
-            LOGGER.error("Failed to send contact reply email: {}", e.getMessage(), e);
             throw new MessagingException("Error while sending Contact Us reply email", e);
         }
     }
@@ -119,7 +107,6 @@ public class EmailService {
             sb.append("<li>").append(url).append("</li>");
         }
         sb.append("</ul>");
-
         return sb.toString();
     }
 
@@ -132,9 +119,7 @@ public class EmailService {
         contactUs.getReply().forEach((key, value) ->
                 sb.append("<li><strong>").append(key).append(": </strong>").append(value).append("</li>")
         );
-
         sb.append("</ul>");
-
         return sb.toString();
     }
 }

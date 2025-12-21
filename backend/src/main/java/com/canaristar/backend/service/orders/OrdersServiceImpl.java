@@ -1,29 +1,26 @@
 package com.canaristar.backend.service.orders;
 
 import com.canaristar.backend.entity.IdempotencyRecord;
-import com.canaristar.backend.entity.LogEntry;
+import com.canaristar.backend.entity.LogDay;
 import com.canaristar.backend.entity.orders.Orders;
 import com.canaristar.backend.enums.OrdersType;
 import com.canaristar.backend.repository.IdempotencyRepository;
+import com.canaristar.backend.repository.LogDayRepository;
 import com.canaristar.backend.repository.OrdersRepository;
 import com.canaristar.backend.service.userOrders.UserOrdersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import java.time.format.DateTimeFormatter;
-import java.time.LocalDate;
-import java.util.Objects;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,12 +28,13 @@ import java.util.Optional;
 public class OrdersServiceImpl implements OrdersService {
 
     private static final Logger logger = LoggerFactory.getLogger(OrdersServiceImpl.class);
+    private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @Autowired
     private OrdersRepository ordersRepository;
 
     @Autowired
-    private MongoTemplate mongoTemplate;
+    private LogDayRepository logDayRepository;
 
     @Autowired
     private IdempotencyRepository idempotencyRepository;
@@ -67,12 +65,7 @@ public class OrdersServiceImpl implements OrdersService {
                     .findById(record.getResponseOrderId())
                     .orElseThrow();
 
-            LogEntry log = new LogEntry();
-            log.setType("ORDER");
-            log.setLevel("INFO");
-            log.setMessage("Idempotency hit - returning existing order");
-            log.setMetadata(metadataFor(existing.getUserId(), "orderId=" + existing.getId() + ",key=" + idempotencyKey));
-            mongoTemplate.save(log, collectionNameFor(LocalDate.now()));
+            logOrderEvent("Idempotency hit - returning existing order", existing.getId(), existing.getUserId(), null);
 
             return existing;
         }
@@ -90,34 +83,9 @@ public class OrdersServiceImpl implements OrdersService {
 
         idempotencyRepository.save(record);
 
-        LogEntry log = new LogEntry();
-        log.setType("ORDER");
-        log.setLevel("INFO");
-        log.setMessage("Order created");
-        log.setMetadata(metadataFor(saved.getUserId(), "orderId=" + saved.getId()));
-        mongoTemplate.save(log, collectionNameFor(LocalDate.now()));
+        logOrderEvent("Order created", saved.getId(), saved.getUserId(), null);
 
         return saved;
-    }
-
-    private String metadataFor(String userId, String extra) {
-        // try to fetch request path and authenticated name if available
-        String path = null;
-        String user = userId;
-
-        try {
-            ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-            if (attrs != null) path = attrs.getRequest().getRequestURI();
-
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth != null && (user == null || user.isEmpty())) user = auth.getName();
-        } catch (Exception ignored) {}
-
-        return "path=" + path + ",user=" + user + "," + extra;
-    }
-
-    private String collectionNameFor(LocalDate date) {
-        return "service_logs_" + date.format(DateTimeFormatter.ofPattern("yyyy_MM_dd"));
     }
 
     @Override
@@ -126,8 +94,6 @@ public class OrdersServiceImpl implements OrdersService {
 
         if (old == null) return null;
 
-        logger.info("updateOrder called orderId={}", id);
-
         old.setRemarks(req.getRemarks());
         old.setOrdersType(req.getOrdersType());
         old.setUpdatedAt(LocalDateTime.now());
@@ -135,14 +101,40 @@ public class OrdersServiceImpl implements OrdersService {
         Orders updated = ordersRepository.save(old);
         userOrdersService.updateUserOrder(old.getUserId(), updated);
 
-        LogEntry log = new LogEntry();
-        log.setType("ORDER");
-        log.setLevel("INFO");
-        log.setMessage("Order updated");
-        log.setMetadata(metadataFor(updated.getUserId(), "orderId=" + updated.getId()));
-        mongoTemplate.save(log, collectionNameFor(LocalDate.now()));
+        logOrderEvent("Order updated", old.getId(), old.getUserId(), updated.getRazorpayPaymentId());
 
         return updated;
+    }
+
+    private void logOrderEvent(String message, String orderId, String userId, String paymentId) {
+        try {
+            LocalDate today = LocalDate.now();
+            String dateStr = today.format(DATE_FMT);
+
+            Optional<LogDay> existing = logDayRepository.findByDate(dateStr);
+            LogDay logDay;
+
+            if (existing.isPresent()) {
+                logDay = existing.get();
+            } else {
+                logDay = new LogDay();
+                logDay.setDate(dateStr);
+            }
+
+            LogDay.LogEntryItem entry = new LogDay.LogEntryItem(
+                    LocalDateTime.now(),
+                    "OrderService",
+                    message,
+                    orderId,
+                    paymentId,
+                    null
+            );
+
+            logDay.getEntries().add(entry);
+            logDayRepository.save(logDay);
+        } catch (Exception e) {
+            logger.warn("Failed to persist order log: {}", e.getMessage());
+        }
     }
 
     @Override
